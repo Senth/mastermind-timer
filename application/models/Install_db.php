@@ -35,6 +35,11 @@ class Install_db extends CI_Model {
 		}
 	}
 
+	public function reset_items() {
+		$this->db->truncate(self::$T_AGENDA_ITEMS);
+		$this->populate_agenda_items();
+	}
+
 	private function install_agenda_table() {
 		$this->dbforge->add_field(self::$C_ID);
 		$this->dbforge->add_field(self::$C_START_TIME . ' int(10) unsigned DEFAULT NULL');
@@ -58,7 +63,8 @@ class Install_db extends CI_Model {
 	private function populate_agenda_items() {
 		$data = array(
 			array(
-				self::$C_DESCRIPTION => 'Welcome, opening request for clarity and inspiration',
+				self::$C_ID => 1,
+				self::$C_DESCRIPTION => 'Welcome, gain clarity and inspiration',
 				self::$C_ORDER => 1,
 				self::$C_TIME_DEFAULT => 60,
 				self::$C_IS_TIME_EDITABLE => 0,
@@ -67,36 +73,37 @@ class Install_db extends CI_Model {
 				self::$C_IS_ALL_PARTICIPANTS => 0
 			),
 			array(
+				self::$C_ID => 2,
 				self::$C_DESCRIPTION => 'Share what\'s new and good',
 				self::$C_ORDER => 2,
-				self::$C_TIME_DEFAULT => 20,
+				self::$C_TIME_DEFAULT => 60,
 				self::$C_IS_TIME_EDITABLE => 0,
 				self::$C_IS_TIME_EXTRA => 0,
-				self::$C_TIME => 15,
+				self::$C_TIME => 60,
 				self::$C_IS_ALL_PARTICIPANTS => 1
 			),
 			array(
+				self::$C_ID => 3,
 				self::$C_DESCRIPTION => 'Negotiate for time',
 				self::$C_ORDER => 3,
 				self::$C_TIME_DEFAULT => 20,
 				self::$C_IS_TIME_EDITABLE => 0,
 				self::$C_IS_TIME_EXTRA => 0,
-				self::$C_TIME => 15,
+				self::$C_TIME => 20,
 				self::$C_IS_ALL_PARTICIPANTS => 1
 			),
 			array(
+				self::$C_ID => 4,
 				self::$C_DESCRIPTION => '
 					<ul>
 						<li>Last week’s action(s)</li>
+						<li>Accountability for last week’s action(s)</li>
 						<li><ul>
-							<li>Accountability for last week’s action(s)</li>
-							<li><ul>
-								<li>If complete, move on</li>
-								<li>If incomplete, exploration of challenges/reasons</li>
-								<li>Recommit to this action or change</li>
-							</ul></li>
-							<li>Discussion of challenges/brainstorm</li>
+							<li>If complete, move on</li>
+							<li>If incomplete, exploration of challenges/reasons</li>
+							<li>Recommit to this action or change</li>
 						</ul></li>
+						<li>Discussion of challenges/brainstorm</li>
 						<li>State actions for the next week (recorded in OneNote)</li>
 					</ul>',
 				self::$C_ORDER => 4,
@@ -107,7 +114,8 @@ class Install_db extends CI_Model {
 				self::$C_IS_ALL_PARTICIPANTS => 1
 			),
 			array(
-				self::$C_DESCRIPTION => 'Extra time (from above)',
+				self::$C_ID => 5,
+				self::$C_DESCRIPTION => 'Available extra time',
 				self::$C_ORDER => 5,
 				self::$C_TIME_DEFAULT => 0,
 				self::$C_IS_TIME_EDITABLE => 0,
@@ -116,6 +124,7 @@ class Install_db extends CI_Model {
 				self::$C_IS_ALL_PARTICIPANTS => 0
 			),
 			array(
+				self::$C_ID => 6,
 				self::$C_DESCRIPTION => 'Make a commitment to stretch. Declare one action for the week that you wouldn\'t take, if not for the group (not necessarily related to business)',
 				self::$C_ORDER => 6,
 				self::$C_TIME_DEFAULT => 60,
@@ -125,6 +134,7 @@ class Install_db extends CI_Model {
 				self::$C_IS_ALL_PARTICIPANTS => 1
 			),
 			array(
+				self::$C_ID => 7,
 				self::$C_DESCRIPTION => 'Gratitude',
 				self::$C_ORDER => 7,
 				self::$C_TIME_DEFAULT => 20,
@@ -134,6 +144,7 @@ class Install_db extends CI_Model {
 				self::$C_IS_ALL_PARTICIPANTS => 1
 			),
 			array(
+				self::$C_ID => 8,
 				self::$C_DESCRIPTION => 'Closing',
 				self::$C_ORDER => 8,
 				self::$C_TIME_DEFAULT => 15,

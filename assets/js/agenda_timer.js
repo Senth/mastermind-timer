@@ -24,7 +24,7 @@ function update() {
 function populateTable(agenda_items, elapsed_seconds) {
 	participants = ['Sri', 'Matteus', 'Kevin', 'Alli', 'Jim'];
 
-	elapsed_seconds = 365;
+	elapsed_seconds = 700;
 	var agenda_time = 0;
 
 	$table = $('#mastermind_table');
@@ -37,12 +37,15 @@ function populateTable(agenda_items, elapsed_seconds) {
 		time_str = time_minutes + ':' + str_pad_left(time_seconds, '0', 2);
 
 		row = '<div class="row">' +
+			'<div class="row_background"></div>' +
+			'<div class="row_content">' +
 			'<div class="cell" id="start_time"></div>' +
 			'<div class="cell" id="description">' + agenda_item.description + '</div>' +
 			'<div class="cell" id="participant"></div>' +
 			'<div class="cell" id="time">' + time_str + '</div>' +
 			'<div class="cell" id="time_left"></div>' +
 			'<div class="cell" id="cursor"></div>' +
+			'</div>' +
 			'</div>';
 		
 		if (agenda_item.is_all_participants == 1) {
@@ -101,8 +104,8 @@ function setRowInformation($row, agenda_item, start_time, elapsed_seconds) {
 }
 
 function setColorTimeLeft($row, time, time_left) {
-	redTimeThreshold = 0;
-	orangeTimeTreshold = 0;
+	var redTimeThreshold = 0;
+	var orangeTimeThreshold = 0;
 
 	// At least 3 minutes
 	if (time >= 180) {
@@ -117,34 +120,37 @@ function setColorTimeLeft($row, time, time_left) {
 	// At least 1 minute
 	else if (time >= 60) {
 		redTimeThreshold = 15;
-		orangeTimeTreshold = 30;
+		orangeTimeThreshold = 30;
 	}
 	// At least 30 seconds
 	else if (time >= 30) {
 		redTimeThreshold = 10;
-		orangeTimeTreshold = 20;
+		orangeTimeThreshold = 20;
 	}
 	// Less than 30 seconds
 	else {
 		redTimeThreshold = 5;
-		orangeTimeTreshold = 10;
+		orangeTimeThreshold = 10;
 	}
 
 	
-	percentLeft = Math.round(time_left / time * 100);
-	percentWidth = 100 - percentLeft;
-	color = '#E8F5E9'; // Green
+	var percentTimeLeft = Math.round(time_left / time * 100);
+	var backgroundWidth = 100 - percentTimeLeft + "%";
+	var color = '#E8F5E9'; // Green
 
 	// Red
 	if (time_left < redTimeThreshold) {
 		color = '#FFEBEE';		
 	}
 	// Orange
-	else if (time_left < orangeTimeTreshold) {
+	else if (time_left < orangeTimeThreshold) {
 		color = '#FFF3E0';
 	}
 
-	$row.
+	$row.find('.row_background').css({
+		width: backgroundWidth,
+		'background-color': color
+	});
 }
 
 function str_pad_left(string,pad,length) {

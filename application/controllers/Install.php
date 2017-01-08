@@ -17,4 +17,10 @@ class Install extends CI_Controller {
 		$json_return['success'] = TRUE;
 		echo json_encode($json_return);
 	}
+
+	public function reset_items() {
+		$this->install_db->reset_items();
+		$json_return['success'] = TRUE;
+		echo json_encode($json_return);
+	}
 }

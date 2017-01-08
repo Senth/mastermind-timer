@@ -11,10 +11,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 </head>
 <body>
 <h1>Install Database</h1>
+<p>
 <?php
 if (!$installed)
 	echo '<input id="install_button" type="button" value="Install" onClick="install()" />';
 else
 	echo 'Already installed'
 ?>
+</p>
+<p><input id="reset_items" type="button" value="Reset Agenda Items" onClick="resetItems()" /></p>
 </body>
