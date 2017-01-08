@@ -1,23 +1,12 @@
 body {
+	padding: 10px;
 	font-size: 20px;
 	font-family: 'Roboto Slab', serif;
 	color: rgba(0, 0, 0, 0.87);
 }
 
-h1 {
-	font-family: 'Roboto Condensed', sans-serif;
-}
-
-.green {
-	background-color: #E8F5E9; 
-}
-
-.orange {
-	background-color: #FFF3E0;
-}
-
-.red {
-	background-color: #FFEBEE;
+.success {
+	color: #4CAF50;	
 }
 
 .table {
@@ -27,8 +16,8 @@ h1 {
 
 .row {
 	position: relative;
-	float: left;
 	width: auto;
+	margin: 0 !important;
 }
 
 .row_content {
@@ -64,7 +53,7 @@ h1 {
 }
 
 #start_time, #time, #time_left {
-	width: 50px;
+	width: 80px;
 	text-align: center;
 }
 
@@ -73,10 +62,10 @@ h1 {
 }
 
 #participant {
-	width: 80px;
+	width: 120px;
 	font-weight: 700;
 }
 
 #cursor {
-	width: 90px;
+	width: 130px;
 }

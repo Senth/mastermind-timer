@@ -38,8 +38,9 @@ function resetItems() {
 				$message = $('<p class="success">Reset successful!</p>');
 				$message
 					.delay(2000)
-					.fadeTo(2000, 0)
-					.remove();
+					.fadeOut(2000, function() {
+						$(this).remove();
+					});
 				$('body').append($message);
 			}
 		}

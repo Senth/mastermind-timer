@@ -1,15 +1,6 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-?><!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="utf-8">
-	<title>Install Database</title>
-	<?php echo css_asset('style.css'); ?>
-	<?php echo js_asset('jquery-3.1.1.min.js'); ?>
-	<?php echo js_asset('install.js'); ?>
-</head>
-<body>
+?>
 <h1>Install Database</h1>
 <p>
 <?php
@@ -19,5 +10,4 @@ else
 	echo 'Already installed'
 ?>
 </p>
-<p><input id="reset_items" type="button" value="Reset Agenda Items" onClick="resetItems()" /></p>
-</body>
+<p><a class="waves-effect waves-light btn light-blue accent-3" onClick="resetItems()">Reset Agenda Items</a></p>

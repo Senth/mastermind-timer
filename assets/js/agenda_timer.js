@@ -13,19 +13,16 @@ function update() {
 		success: function(json) {
 			if (json.success) {
 				$('#mastermind_table').children().remove();
-				populateTable(json.items, json.elapsed_seconds);
+				populateTable(json.items, json.participant_times, json.seconds_elapsed);
 			}
 		}
 	});
 	
-// 	setTimeout('update()', 1000);
+	setTimeout('update(true)', 500);
 }
 
-function populateTable(agenda_items, elapsed_seconds) {
-	participants = ['Sri', 'Matteus', 'Kevin', 'Alli', 'Jim'];
-
-	elapsed_seconds = 700;
-	var agenda_time = 0;
+function populateTable(agenda_items, participant_times, elapsed_seconds) {
+	var total_time = 0;
 
 	$table = $('#mastermind_table');
 	for (i = 0; i < agenda_items.length; ++i) {
@@ -42,36 +39,82 @@ function populateTable(agenda_items, elapsed_seconds) {
 			'<div class="cell" id="start_time"></div>' +
 			'<div class="cell" id="description">' + agenda_item.description + '</div>' +
 			'<div class="cell" id="participant"></div>' +
-			'<div class="cell" id="time">' + time_str + '</div>' +
+			'<div class="cell" id="time_outer">';
+
+		// Editable
+		if (agenda_item.is_time_editable == 1) {
+			row += '<p><a id="time_up" class="waves-effect waves-light btn"><i class="material-icons">expand_less</i></a></p>';
+		}
+
+		row +=
+			'<div id="time">' + time_str + '</div>';
+
+		if (agenda_item.is_time_editable == 1) {
+			row += '<p><a id="time_down" class="waves-effect waves-light btn"><i class="material-icons">expand_more</i></a></p>';
+		}
+
+		row +=
+			'</div>' +
 			'<div class="cell" id="time_left"></div>' +
 			'<div class="cell" id="cursor"></div>' +
 			'</div>' +
 			'</div>';
 		
 		if (agenda_item.is_all_participants == 1) {
-			for (participantIndex = 0; participantIndex < participants.length; ++participantIndex) {
+			for (let participantIndex = 0; participantIndex < participant_times.length; ++participantIndex) {
 				$row = $(row)
-				setRowInformation($row, agenda_item, agenda_time, elapsed_seconds);
-				$row.find('#participant').html(participants[participantIndex]);
+				let item_time = agenda_item.time;
+
+				// Use participant time
+				if (agenda_item.is_time_editable == 1) {
+					item_time = parseInt(participant_times[participantIndex].time);
+					minutes = Math.floor(item_time / 60);
+					seconds = item_time - minutes * 60;
+					$row.find('#time').html(minutes + ':' + str_pad_left(seconds, '0', 2));
+
+					// Add onClick
+					let participant_id = participant_times[participantIndex].id;
+					$row.find('#time_up').click(function() {
+						increase_participant_time(participant_id)});
+					$row.find('#time_down').click(function() {
+						decrease_participant_time(participant_id)
+					});
+				}
+
+				setRowInformation($row, item_time, total_time, elapsed_seconds);
+				$row.find('#participant').html(participant_times[participantIndex].name);
 				$table.append($row);
-				agenda_time += agenda_item.time;
+				total_time += item_time;
 			}
 		} else {
 			$row = $(row)
-			setRowInformation($row, agenda_item, agenda_time, elapsed_seconds);
+			var item_time = agenda_item.time;
+
+			// Use extra time
+			if (agenda_item.is_time_extra == 1) {
+				item_time = 540 * 5;
+				for (participantIndex = 0; participantIndex < participant_times.length; ++participantIndex) {
+					item_time -= parseInt(participant_times[participantIndex].time);
+				}
+				minutes = Math.floor(item_time / 60);
+				seconds = item_time - minutes * 60;
+				$row.find('#time').html(minutes + ':' + str_pad_left(seconds, '0', 2));
+			}
+
+			setRowInformation($row, item_time, total_time, elapsed_seconds);
 			$table.append($row);
-			agenda_time += agenda_item.time;
+			total_time += item_time;
 		}
 	}	
 }
 
-function setRowInformation($row, agenda_item, start_time, elapsed_seconds) {
-	end_time = start_time + agenda_item.time;
+function setRowInformation($row, item_time, start_time, elapsed_seconds) {
+	var end_time = start_time + item_time;
 
 	// Start time
-	start_minutes = Math.floor(start_time / 60);
-	start_seconds = start_time - start_minutes * 60;
-	start_time_str = str_pad_left(start_minutes, '0', 2) + ':' + str_pad_left(start_seconds, '0', 2);
+	var start_minutes = Math.floor(start_time / 60);
+	var start_seconds = start_time - start_minutes * 60;
+	var start_time_str = str_pad_left(start_minutes, '0', 2) + ':' + str_pad_left(start_seconds, '0', 2);
 	$row.find('#start_time').html(start_time_str);
 
 	// In progress
@@ -80,21 +123,18 @@ function setRowInformation($row, agenda_item, start_time, elapsed_seconds) {
 
 		// Time left
 		time_left = end_time - elapsed_seconds;
-		minutes = 0;
-		if (time_left > 60) {
-			minutes = Math.floor(time_left / 60);
-		}
+		minutes = Math.floor(time_left / 60);
 		seconds = time_left - minutes * 60;
 		$row.find('#time_left').html(minutes + ':' + str_pad_left(seconds, '0', 2));
 
 		// Color time left
-		setColorTimeLeft($row, agenda_item.time, time_left);
+		setColorTimeLeft($row, item_time, time_left);
 		
 		// Add cursor <---
 		$row.find('#cursor').html('<—————');
 	}
 	// Passed
-	else if (end_time < elapsed_seconds) {
+	else if (end_time <= elapsed_seconds) {
 		$row.addClass('passed_item');
 	}
 	// Incoming
@@ -134,7 +174,7 @@ function setColorTimeLeft($row, time, time_left) {
 	}
 
 	
-	var percentTimeLeft = Math.round(time_left / time * 100);
+	var percentTimeLeft = time_left / time * 100;
 	var backgroundWidth = 100 - percentTimeLeft + "%";
 	var color = '#E8F5E9'; // Green
 
@@ -155,6 +195,63 @@ function setColorTimeLeft($row, time, time_left) {
 
 function str_pad_left(string,pad,length) {
     return (new Array(length+1).join(pad)+string).slice(-length);
+}
+
+function start_agenda() {
+	$.ajax({
+		url: 'agenda/start',
+		type: 'POST',
+		data: null,
+		dataType: 'json',
+		success: function(json) {
+			if (json === null || json.success === undefined) {
+				addMessage('Return message is null, contact administrator', 'error');
+				return;
+			}
+
+			if (json.success) {
+				$message = $('<p class="success">Timer started!</p>');
+				$message
+					.delay(2000)
+					.fadeOut(2000, function() {
+						$(this).remove();
+					});
+				$('#messages').append($message);
+			}
+		}
+	});
+}
+
+function increase_participant_time(participant_id) {
+	update_participant_time(participant_id, 60);
+}
+
+function decrease_participant_time(participant_id) {
+	update_participant_time(participant_id, -60);
+}
+
+function update_participant_time(participant_id, diff_time) {
+	var formData = {
+		participant_id: participant_id,
+		diff_time: diff_time
+	}
+
+	$.ajax({
+		url: 'agenda/update_participant_time',
+		type: 'POST',
+		data: formData,
+		dataType: 'json',
+		success: function(json) {
+			if (json === null || json.success === undefined) {
+				addMessage('Return message is null, contact administrator', 'error');
+				return;
+			}
+
+			if (json.success) {
+			}
+		}
+	});
+
 }
 
 $(document).ready(function() {

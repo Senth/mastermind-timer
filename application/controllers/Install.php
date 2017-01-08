@@ -8,8 +8,14 @@ class Install extends CI_Controller {
 
 	public function index() {
 		$installed = $this->install_db->is_installed();
+		$header['title'] = 'Install Database';
+		$header['js_asset'] = 'install.js';
+		$this->load->view('header', $header);
+		
 		$data['installed'] = $installed;
 		$this->load->view('install', $data);
+
+		$this->load->view('footer');
 	}
 
 	public function install() {

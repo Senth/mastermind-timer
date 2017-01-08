@@ -8,7 +8,13 @@ class Agenda extends CI_Controller {
 	}
 
 	public function index() {
+		$header['title'] = 'Mastermind Timer';
+		$header['js_asset'] = 'agenda_timer.js';
+		$this->load->view('header', $header);
+
 		$this->load->view('agenda_timer');
+
+		$this->load->view('footer');
 	}
 
 	public function get_agenda() {
@@ -20,20 +26,36 @@ class Agenda extends CI_Controller {
 		} else {
 			$json_return['seconds_elapsed'] = 0;
 		}
+		log_message('debug', 'Elapsed seconds: ' + $json_return['seconds_elapsed']);
 
 		// Get all agenda items
 		$json_return['items'] = $this->agenda_items->get_items();
-		$json_return['success'] = TRUE;
 
+		// Get participant times
+		$json_return['participant_times'] = $this->agenda_items->get_participant_time();
+
+		$json_return['success'] = TRUE;
+		echo json_encode($json_return);
+	}
+
+	public function update_participant_time() {
+		$participant_id = $this->input->post('participant_id');
+		$diff_time = $this->input->post('diff_time');
+		$this->agenda_items->set_participant_time($participant_id, $diff_time);
+
+		$json_return['success'] = TRUE;
 		echo json_encode($json_return);
 	}
 
 	public function reset() {
-		$this->agenda->set_start_time(0);
-		$this->agendaitems->reset();
+		$this->agenda_items->reset();
 	}
 
 	public function start() {
-		$this->agenda->set_start_time(time());
+		$this->reset();
+
+		$json_return['success'] = TRUE;
+		echo json_encode($json_return);
+		$this->agendas->set_start_time(time());
 	}
 }
