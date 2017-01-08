@@ -1,6 +1,6 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class AgendaItems extends CI_Model {
+class Agenda_items extends CI_Model {
 	private static $TABLE = 'agenda_items';
 	private static $C_ID = 'id';
 	private static $C_DESCRIPTION = 'description';
@@ -17,7 +17,7 @@ class AgendaItems extends CI_Model {
 
 	public function get_items() {
 		$this->db->from(self::$TABLE);
-		$this->db->order_by(self::$C_ORDER, 'asc');
+		$this->db->order_by(self::$C_ORDER, 'ASC');
 
 		return $this->db->get()->result_array();
 	}

@@ -3,7 +3,7 @@
 class Agenda extends CI_Controller {
 	public function __construct() {
 		parent::__construct();
-		$this->load->model('agendaitems');
+		$this->load->model('agenda_items');
 		$this->load->model('agendas');
 	}
 
@@ -12,10 +12,8 @@ class Agenda extends CI_Controller {
 	}
 
 	public function get_agenda() {
-		$json_return['success'] = FALSE;
-
 		// How many seconds have elapsed?
-		$start_time = $this->agenda->get_start_time();
+		$start_time = $this->agendas->get_start_time();
 		if ($start_time > 0) {
 			$diff_time = time() - $start_time;
 			$json_return['seconds_elapsed'] = $diff_time;
@@ -24,7 +22,8 @@ class Agenda extends CI_Controller {
 		}
 
 		// Get all agenda items
-		$json_return['items'] = $this->model->agendaitems->get_items();
+		$json_return['items'] = $this->agenda_items->get_items();
+		$json_return['success'] = TRUE;
 
 		echo json_encode($json_return);
 	}

@@ -10,15 +10,21 @@ class Agendas extends CI_Model {
 	}
 
 	public function get_start_time() {
-		$this->db->from($TABLE);
-		$this->db->select($C_START_TIME);
+		$this->db->from(self::$TABLE);
+		$this->db->select(self::$C_START_TIME);
+		$this->db->order_by(self::$C_START_TIME, 'ASC');
 		$this->db->limit(1);
 
-		return $this->db->get()->row()->start_time;
+		$row = $this->db->get()->row();
+		if (isset($row)) {
+			return $row()->start_time;
+		} else {
+			return 0;
+		}
 	}
 
 	public function set_start_time($start_time) {
 		$this->db->set(self::$C_START_TIME, $start_time);
-		$this->db->update($TABLE);
+		$this->db->update(self::$TABLE);
 	}
 }

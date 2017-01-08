@@ -1,0 +1,71 @@
+body {
+	font-size: 20px;
+	font-family: 'Roboto Slab', serif;
+	color: rgba(0, 0, 0, 0.87);
+}
+
+h1 {
+	font-family: 'Roboto Condensed', sans-serif;
+}
+
+.green {
+	background-color: #E8F5E9; 
+}
+
+.orange {
+	background-color: #FFF3E0;
+}
+
+.red {
+	background-color: #FFEBEE;
+}
+
+.table {
+	display: table;
+	width: auto;
+}
+
+.row {
+	float: left;
+	width: auto;
+}
+
+.cell {
+	display: table-cell;
+	vertical-align: middle;
+	padding: 10px;
+	border-bottom: 1px solid #BDBDBD;
+}
+
+.passed_item {
+	background-color: #E1F5FE;
+	color: rgba(0, 0, 0, 0.38);
+}
+
+.incoming_item {
+}
+
+.current_item {
+	background: -webkit-linear-gradient(left, #FFEBEE 50%, white 50%);
+    background: -moz-linear-gradient(left, #E8F5E9 50%, white 50%);
+    background: -ms-linear-gradient(left, #E8F5E9 50%, white 50%);
+    background: linear-gradient(left, #E8F5E9 50%, white 50%);
+}
+
+#start_time, #time, #time_left {
+	width: 50px;
+	text-align: center;
+}
+
+#description {
+	width: 600px;
+}
+
+#participant {
+	width: 80px;
+	font-weight: 700;
+}
+
+#cursor {
+	width: 90px;
+}
