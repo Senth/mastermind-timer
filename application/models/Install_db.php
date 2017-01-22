@@ -11,7 +11,6 @@ class Install_db extends CI_Model {
 	private static $C_DESCRIPTION = '`description`';
 	private static $C_ORDER = '`order`';
 	private static $C_IS_TIME_EDITABLE = '`is_time_editable`';
-	private static $C_IS_TIME_EXTRA = '`is_time_extra`';
 	private static $C_TIME = '`time`';
 	private static $C_IS_ALL_PARTICIPANTS = '`is_all_participants`';
 
@@ -61,7 +60,6 @@ class Install_db extends CI_Model {
 		$this->dbforge->add_field(self::$C_DESCRIPTION . ' text NOT NULL');
 		$this->dbforge->add_field(self::$C_ORDER . ' tinyint(4) NOT NULL');
 		$this->dbforge->add_field(self::$C_IS_TIME_EDITABLE . ' tinyint(1) NOT NULL DEFAULT 1');
-		$this->dbforge->add_field(self::$C_IS_TIME_EXTRA . " tinyint(1) NOT NULL DEFAULT 0 COMMENT 'If this is the extra time field'");
 		$this->dbforge->add_field(self::$C_TIME . ' smallint(6) NOT NULL');
 		$this->dbforge->add_field(self::$C_IS_ALL_PARTICIPANTS . ' tinyint(1) NOT NULL DEFAULT 0');
 		$this->dbforge->add_key(self::$C_ID);
@@ -75,7 +73,6 @@ class Install_db extends CI_Model {
 				self::$C_DESCRIPTION => 'Welcome, gain clarity and inspiration',
 				self::$C_ORDER => 1,
 				self::$C_IS_TIME_EDITABLE => 0,
-				self::$C_IS_TIME_EXTRA => 0,
 				self::$C_TIME => 60,
 				self::$C_IS_ALL_PARTICIPANTS => 0
 			),
@@ -84,7 +81,6 @@ class Install_db extends CI_Model {
 				self::$C_DESCRIPTION => 'Share what\'s new and good',
 				self::$C_ORDER => 2,
 				self::$C_IS_TIME_EDITABLE => 0,
-				self::$C_IS_TIME_EXTRA => 0,
 				self::$C_TIME => 60,
 				self::$C_IS_ALL_PARTICIPANTS => 1
 			),
@@ -93,7 +89,6 @@ class Install_db extends CI_Model {
 				self::$C_DESCRIPTION => 'Negotiate for time',
 				self::$C_ORDER => 3,
 				self::$C_IS_TIME_EDITABLE => 0,
-				self::$C_IS_TIME_EXTRA => 0,
 				self::$C_TIME => 20,
 				self::$C_IS_ALL_PARTICIPANTS => 1
 			),
@@ -113,43 +108,30 @@ class Install_db extends CI_Model {
 					</ul>',
 				self::$C_ORDER => 4,
 				self::$C_IS_TIME_EDITABLE => 1,
-				self::$C_IS_TIME_EXTRA => 0,
 				self::$C_TIME => self::$DEFAULT_TIME,
 				self::$C_IS_ALL_PARTICIPANTS => 1
 			),
 			array(
 				self::$C_ID => 5,
-				self::$C_DESCRIPTION => 'Available extra time',
+				self::$C_DESCRIPTION => 'Make a commitment to stretch. Declare one action for the week that you wouldn\'t take, if not for the group (not necessarily related to business)',
 				self::$C_ORDER => 5,
 				self::$C_IS_TIME_EDITABLE => 0,
-				self::$C_IS_TIME_EXTRA => 1,
-				self::$C_TIME => 0,
-				self::$C_IS_ALL_PARTICIPANTS => 0
-			),
-			array(
-				self::$C_ID => 6,
-				self::$C_DESCRIPTION => 'Make a commitment to stretch. Declare one action for the week that you wouldn\'t take, if not for the group (not necessarily related to business)',
-				self::$C_ORDER => 6,
-				self::$C_IS_TIME_EDITABLE => 0,
-				self::$C_IS_TIME_EXTRA => 0,
 				self::$C_TIME => 60,
 				self::$C_IS_ALL_PARTICIPANTS => 1
 			),
 			array(
-				self::$C_ID => 7,
+				self::$C_ID => 6,
 				self::$C_DESCRIPTION => 'Gratitude',
-				self::$C_ORDER => 7,
+				self::$C_ORDER => 6,
 				self::$C_IS_TIME_EDITABLE => 0,
-				self::$C_IS_TIME_EXTRA => 0,
 				self::$C_TIME => 30,
 				self::$C_IS_ALL_PARTICIPANTS => 1
 			),
 			array(
-				self::$C_ID => 8,
+				self::$C_ID => 7,
 				self::$C_DESCRIPTION => 'Closing',
-				self::$C_ORDER => 8,
+				self::$C_ORDER => 7,
 				self::$C_IS_TIME_EDITABLE => 0,
-				self::$C_IS_TIME_EXTRA => 0,
 				self::$C_TIME => 30,
 				self::$C_IS_ALL_PARTICIPANTS => 0
 			)

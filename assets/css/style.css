@@ -5,6 +5,14 @@ body {
 	color: rgba(0, 0, 0, 0.87);
 }
 
+label {
+	font-family: 'Roboto Slab', serif;
+	color: rgba(0, 0, 0, 0.87);
+	display: block;
+	font-weight: bold;
+	padding-right: 10px;
+}
+
 .success {
 	color: #4CAF50;	
 }
@@ -62,10 +70,46 @@ body {
 }
 
 #participant {
-	width: 120px;
+	width: 110px;
 	font-weight: 700;
 }
 
-#cursor {
-	width: 130px;
+#extra_time_frame {
+	margin: 10px;
+	padding: 10px;
+	position: fixed;
+	right: 0;
+	top: 0;
+	border: #BDBDBD 1px solid;
+	z-index: 10;
+	background-color: rgba(255,255,255,0.75);
+}
+
+#extra_time_frame .action_container {
+	padding-top: 20px;
+}
+
+#extra_time_frame h3 {
+	margin-top: 0;
+}
+
+/* Material Colors */
+.row_background.orange100 {
+	background-color: #ffe0b2;
+}
+
+.row_background.red100 {
+	background-color: #FFCDD2;
+}
+
+.row_background.green100 {
+	background-color: #C8E6C9;
+}
+
+.green500 {
+	color: rgba(27,94,32,0.87);	
+}
+
+.red500 {
+	color: rgba(183,28,28,0.87);
 }

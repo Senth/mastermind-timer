@@ -1,4 +1,4 @@
-function update() {
+function fetch_all() {
 	var $formData = {}
 
 	var formData = {
@@ -7,7 +7,7 @@ function update() {
 
 	$.ajax({
 		url: 'agenda/get_agenda',
-		type: 'POST',
+		type: 'GET',
 		data: formData,
 		dataType: 'json',
 		success: function(json) {
@@ -18,7 +18,26 @@ function update() {
 		}
 	});
 	
-	setTimeout('update(true)', 500);
+// 	setTimeout('update()', 100);
+}
+
+function update() {
+	// TODO
+	
+	var formData = {
+		ajax: true
+	}
+
+	$.ajax({
+		url:  'agenda/get_times',
+		type: 'GET',
+		data: formData,
+		dataType: 'json',
+		success: function(json) {
+			if (json.success) {
+			}
+		}
+	});
 }
 
 function populateTable(agenda_items, participant_times, elapsed_seconds) {
@@ -56,7 +75,10 @@ function populateTable(agenda_items, participant_times, elapsed_seconds) {
 		row +=
 			'</div>' +
 			'<div class="cell" id="time_left"></div>' +
-			'<div class="cell" id="cursor"></div>' +
+			'<div class="cell" id="actions">' +
+			'<a id="pause" class="waves-effect waves-light btn"><i class="material-icons">pause</i></a> ' +
+			'<a id="skip" class="waves-effect waves-light btn"><i class="material-icons">fast_forward</i></a>' +
+			'</div>' +
 			'</div>' +
 			'</div>';
 		
@@ -90,17 +112,6 @@ function populateTable(agenda_items, participant_times, elapsed_seconds) {
 			$row = $(row)
 			var item_time = agenda_item.time;
 
-			// Use extra time
-			if (agenda_item.is_time_extra == 1) {
-				item_time = 540 * 5;
-				for (participantIndex = 0; participantIndex < participant_times.length; ++participantIndex) {
-					item_time -= parseInt(participant_times[participantIndex].time);
-				}
-				minutes = Math.floor(item_time / 60);
-				seconds = item_time - minutes * 60;
-				$row.find('#time').html(minutes + ':' + str_pad_left(seconds, '0', 2));
-			}
-
 			setRowInformation($row, item_time, total_time, elapsed_seconds);
 			$table.append($row);
 			total_time += item_time;
@@ -110,6 +121,9 @@ function populateTable(agenda_items, participant_times, elapsed_seconds) {
 
 function setRowInformation($row, item_time, start_time, elapsed_seconds) {
 	var end_time = start_time + item_time;
+
+	// TODO remove
+	elapsed_seconds = 30;
 
 	// Start time
 	var start_minutes = Math.floor(start_time / 60);
@@ -129,9 +143,6 @@ function setRowInformation($row, item_time, start_time, elapsed_seconds) {
 
 		// Color time left
 		setColorTimeLeft($row, item_time, time_left);
-		
-		// Add cursor <---
-		$row.find('#cursor').html('<—————');
 	}
 	// Passed
 	else if (end_time <= elapsed_seconds) {
@@ -176,20 +187,21 @@ function setColorTimeLeft($row, time, time_left) {
 	
 	var percentTimeLeft = time_left / time * 100;
 	var backgroundWidth = 100 - percentTimeLeft + "%";
-	var color = '#E8F5E9'; // Green
-
+	$rowBackground = $row.find('.row_background');
+	
 	// Red
 	if (time_left < redTimeThreshold) {
-		color = '#FFEBEE';		
+		$rowBackground.addClass('red100');
 	}
 	// Orange
 	else if (time_left < orangeTimeThreshold) {
-		color = '#FFF3E0';
+		$rowBackground.addClass('red100');
+	} else {
+		$rowBackground.addClass('green100');
 	}
 
-	$row.find('.row_background').css({
+	$rowBackground.css({
 		width: backgroundWidth,
-		'background-color': color
 	});
 }
 
@@ -255,5 +267,5 @@ function update_participant_time(participant_id, diff_time) {
 }
 
 $(document).ready(function() {
-	update();
+	fetch_all();
 });

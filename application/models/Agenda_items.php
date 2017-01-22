@@ -6,7 +6,6 @@ class Agenda_items extends CI_Model {
 	private static $C_DESCRIPTION = '`description`';
 	private static $C_ORDER = '`order`';
 	private static $C_IS_TIME_EDITABLE = '`is_time_editable`';
-	private static $C_IS_TIME_EXTRA = '`is_time_extra`';
 	private static $C_TIME = 'time';
 	private static $C_IS_ALL_PARTICIPANTS = '`is_all_participants`';
 
