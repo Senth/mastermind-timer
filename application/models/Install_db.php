@@ -4,8 +4,9 @@ class Install_db extends CI_Model {
 	private static $T_AGENDA_ITEMS = 'agenda_items';
 	private static $T_AGENDA = 'agenda';
 	private static $T_PARTICIPANT_TIME = 'participant_time';
+	private static $T_AGENDA_TIME = '`agenda_time`';
 
-	private static $C_START_TIME = 'start_time';
+	private static $C_START_TIME = '`start_time`';
 
 	private static $C_ID = 'id';
 	private static $C_DESCRIPTION = '`description`';
@@ -16,6 +17,10 @@ class Install_db extends CI_Model {
 
 	private static $C_NAME = '`name`';
 
+	private static $C_PARTICIPANT_ID = '`participant_id`';
+	private static $C_AGENDA_ITEM_ID = '`agenda_item_id`';
+	private static $C_END_TIME = '`end_time`';
+
 	private static $DEFAULT_TIME = 540;
 
 	public function __construct() {
@@ -24,23 +29,31 @@ class Install_db extends CI_Model {
 	}
 
 	public function is_installed() {
-		return $this->db->table_exists(self::$T_AGENDA) && 
-			$this->db->table_exists(self::$T_AGENDA_ITEMS) && 
-			$this->db->table_exists(self::$T_PARTICIPANT_TIME);
+		return false;
 	}
 
 	public function install() {
-		if (!$this->db->table_exists(self::$T_AGENDA)) {
-			$this->install_agenda_table();
+		// Drop old tables
+		if ($this->db->table_exists(self::$T_AGENDA)) {
+			$this->dbforge->drop_table(self::$T_AGENDA);
 		}
-		if (!$this->db->table_exists(self::$T_AGENDA_ITEMS)) {
-			$this->install_agenda_items_table();
-			$this->populate_agenda_items();
+		if ($this->db->table_exists(self::$T_AGENDA_ITEMS)) {
+			$this->dbforge->drop_table(self::$T_AGENDA_ITEMS);
 		}
-		if (!$this->db->table_exists(self::$T_PARTICIPANT_TIME)) {
-			$this->install_participant_time_table();
-			$this->populate_participant_time();
+		if ($this->db->table_exists(self::$T_PARTICIPANT_TIME)) {
+			$this->dbforge->drop_table(self::$T_PARTICIPANT_TIME);
 		}
+		if (!$this->db->table_exists(self::$T_AGENDA_TIME)) {
+			$this->dbforge->drop_table(self::$T_AGENDA_TIME);
+		}
+
+		// Install and populate tables
+		$this->install_agenda_table();
+		$this->install_agenda_items_table();
+		$this->populate_agenda_items();
+		$this->install_participant_time_table();
+		$this->populate_participant_time();
+		$this->install_agenda_time_table();
 	}
 
 	public function reset_items() {
@@ -89,7 +102,7 @@ class Install_db extends CI_Model {
 				self::$C_DESCRIPTION => 'Negotiate for time',
 				self::$C_ORDER => 3,
 				self::$C_IS_TIME_EDITABLE => 0,
-				self::$C_TIME => 20,
+				self::$C_TIME => 15,
 				self::$C_IS_ALL_PARTICIPANTS => 1
 			),
 			array(
@@ -132,7 +145,7 @@ class Install_db extends CI_Model {
 				self::$C_DESCRIPTION => 'Closing',
 				self::$C_ORDER => 7,
 				self::$C_IS_TIME_EDITABLE => 0,
-				self::$C_TIME => 30,
+				self::$C_TIME => 60,
 				self::$C_IS_ALL_PARTICIPANTS => 0
 			)
 		);
@@ -176,5 +189,15 @@ class Install_db extends CI_Model {
 			)
 		);
 		$this->db->insert_batch(self::$T_PARTICIPANT_TIME, $data);
+	}
+
+	private function install_agenda_time_table() {
+		$this->dbforge->add_field(self::$C_AGENDA_ITEM_ID . ' INTEGER(9) NOT NULL');
+		$this->dbforge->add_field(self::$C_PARTICIPANT_ID . ' INTEGER(9) NULL');
+		$this->dbforge->add_field(self::$C_START_TIME . ' SMALLINT(6) NOT NULL');
+		$this->dbforge->add_field(self::$C_END_TIME . ' SMALLINT(6) NULL');
+		$this->dbforge->add_key(self::$C_AGENDA_ITEM_ID);
+		$this->dbforge->add_key(self::$C_PARTICIPANT_ID);
+		$this->dbforge->create_table(self::$T_AGENDA_TIME);
 	}
 }

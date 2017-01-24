@@ -7,7 +7,6 @@ body {
 
 label {
 	font-family: 'Roboto Slab', serif;
-	color: rgba(0, 0, 0, 0.87);
 	display: block;
 	font-weight: bold;
 	padding-right: 10px;
@@ -32,7 +31,7 @@ label {
 	position: relative;
 }
 
-.row_background {
+#row_background {
 	position: absolute;
 	height: 100%;
 	top: 0;
@@ -49,7 +48,7 @@ label {
 	color: rgba(0, 0, 0, 0.38);
 }
 
-.passed_item .row_background {
+.passed_item #row_background {
 	width: 100%;
 	background-color: #E1F5FE;
 }
@@ -86,7 +85,6 @@ label {
 }
 
 #extra_time_frame .action_container {
-	padding-top: 20px;
 }
 
 #extra_time_frame h3 {
@@ -94,22 +92,41 @@ label {
 }
 
 /* Material Colors */
-.row_background.orange100 {
+#row_background.orange100 {
 	background-color: #ffe0b2;
 }
 
-.row_background.red100 {
+#row_background.red100 {
 	background-color: #FFCDD2;
 }
 
-.row_background.green100 {
+#row_background.overdue {
+	animation: overdue 1.5s linear infinite;
+	-webkit-animation: overdue 1.5s linear infinite;
+}
+
+#row_background.green100 {
 	background-color: #C8E6C9;
 }
 
-.green500 {
+.green900 {
 	color: rgba(27,94,32,0.87);	
 }
 
-.red500 {
+.red900 {
 	color: rgba(183,28,28,0.87);
+}
+
+.passed_item .green900 {
+	color: rgba(27,94,32,0.38);	
+}
+
+.passed_item .red900 {
+	color: rgba(183,28,28,0.38);
+}
+
+@keyframes overdue {
+	0% {background-color: #FFCDD2;}
+	50% {background-color: #ffebee;}
+	100% {background-color: #FFCDD2;}
 }

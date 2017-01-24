@@ -22,7 +22,21 @@ class Agenda_items extends CI_Model {
 		$this->db->from(self::$T_AGENDA_ITEMS);
 		$this->db->order_by(self::$C_ORDER, 'ASC');
 
-		return $this->db->get()->result_array();
+		return $this->db->get()->result();
+	}
+
+	public function is_all_participants($agenda_id) {
+		$this->db->select(self::$C_IS_ALL_PARTICIPANTS);
+		$this->db->from(self::$T_AGENDA_ITEMS);
+		$this->db->where(self::$C_ID, $agenda_id);
+		$this->db->limit(1);
+		$row = $this->db->get()->row();
+		if ($row !== NULL) {
+			log_message('debug', 'is_all_participants(): ' . $row->is_all_participants);
+			return $row->is_all_participants == 1;
+		} else {
+			return false;
+		}
 	}
 
 	public function set_participant_time($participant_id, $time_diff) {
@@ -39,7 +53,13 @@ class Agenda_items extends CI_Model {
 
 	public function get_participant_time() {
 		$this->db->from(self::$T_PARTICIPANT_TIME);
-		return $this->db->get()->result_array();
+		return $this->db->get()->result();
+	}
+
+	public function get_participant_count() {
+		$this->db->select('COUNT(*) AS count');
+		$this->db->from(self::$T_PARTICIPANT_TIME);
+		return $this->db->get()->row()->count;
 	}
 
 	public function reset() {
