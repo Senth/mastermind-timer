@@ -109,15 +109,15 @@ class Install_db extends CI_Model {
 				self::$C_ID => 4,
 				self::$C_DESCRIPTION => '
 					<ul class="browser-default">
-						<li>Last week’s action(s)</li>
-						<li>Accountability for last week’s action(s)</li>
-						<li><ul class="browser-default">
-							<li>If complete, move on</li>
-							<li>If incomplete, exploration of challenges/reasons</li>
-							<li>Recommit to this action or change</li>
+						<li>Last week</li>
+						<li>Accountability
+						<ul class="browser-default">
+							<li>Why not complete?</li>
+							<li>Challenges?</li>
 						</ul></li>
-						<li>Discussion of challenges/brainstorm</li>
-						<li>State actions for the next week (recorded in OneNote)</li>
+						<li>Discussion, brainstorming, challenges</li>
+						<li class="orange900">Actions for next week</li>
+						<li class="red900">Focus action</li>
 					</ul>',
 				self::$C_ORDER => 4,
 				self::$C_IS_TIME_EDITABLE => 1,
@@ -126,7 +126,7 @@ class Install_db extends CI_Model {
 			),
 			array(
 				self::$C_ID => 5,
-				self::$C_DESCRIPTION => 'Make a commitment to stretch. Declare one action for the week that you wouldn\'t take, if not for the group (not necessarily related to business)',
+				self::$C_DESCRIPTION => '<span style="font-weight: bold;">Stretch goal</span><br/>One action you wouldn\'t take if not for the group. Not necessarily related to business.',
 				self::$C_ORDER => 5,
 				self::$C_IS_TIME_EDITABLE => 0,
 				self::$C_TIME => 60,
