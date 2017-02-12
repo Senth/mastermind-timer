@@ -104,10 +104,12 @@ function updateTimeLeft($row, item, elapsed_time) {
 		if (time_left >= 0) {
 			$time_left.html('+' + time_to_string(time_left));
 			$time_left.addClass('green900');
+			$time_left.removeClass('red900');
 			return item.time;
 		} else {
 			$time_left.html(time_to_string(time_left));
 			$time_left.addClass('red900');
+			$time_left.removeClass('green900');
 			return time_used;
 		}
 	} else {

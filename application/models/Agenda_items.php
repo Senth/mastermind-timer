@@ -4,7 +4,6 @@ class Agenda_items extends CI_Model {
 	private static $T_AGENDA_ITEMS = '`agenda_items`';
 	private static $C_ID = 'id';
 	private static $C_DESCRIPTION = '`description`';
-	private static $C_ORDER = '`order`';
 	private static $C_IS_TIME_EDITABLE = '`is_time_editable`';
 	private static $C_TIME = 'time';
 	private static $C_IS_ALL_PARTICIPANTS = '`is_all_participants`';
@@ -12,7 +11,7 @@ class Agenda_items extends CI_Model {
 	private static $T_PARTICIPANT_TIME = '`participant_time`';
 	private static $C_NAME = '`name`';
 	
-	private static $DEFAULT_TIME = 540;
+	private static $DEFAULT_TIME = 660;
 
 	public function __construct() {
 		parent::__construct();
@@ -20,7 +19,7 @@ class Agenda_items extends CI_Model {
 
 	public function get_items() {
 		$this->db->from(self::$T_AGENDA_ITEMS);
-		$this->db->order_by(self::$C_ORDER, 'ASC');
+		$this->db->order_by(self::$C_ID, 'ASC');
 
 		return $this->db->get()->result();
 	}

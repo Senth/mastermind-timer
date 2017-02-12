@@ -10,7 +10,6 @@ class Install_db extends CI_Model {
 
 	private static $C_ID = 'id';
 	private static $C_DESCRIPTION = '`description`';
-	private static $C_ORDER = '`order`';
 	private static $C_IS_TIME_EDITABLE = '`is_time_editable`';
 	private static $C_TIME = '`time`';
 	private static $C_IS_ALL_PARTICIPANTS = '`is_all_participants`';
@@ -21,7 +20,7 @@ class Install_db extends CI_Model {
 	private static $C_AGENDA_ITEM_ID = '`agenda_item_id`';
 	private static $C_END_TIME = '`end_time`';
 
-	private static $DEFAULT_TIME = 540;
+	private static $DEFAULT_TIME = 660;
 
 	public function __construct() {
 		parent::__construct();
@@ -43,7 +42,7 @@ class Install_db extends CI_Model {
 		if ($this->db->table_exists(self::$T_PARTICIPANT_TIME)) {
 			$this->dbforge->drop_table(self::$T_PARTICIPANT_TIME);
 		}
-		if (!$this->db->table_exists(self::$T_AGENDA_TIME)) {
+		if ($this->db->table_exists(self::$T_AGENDA_TIME)) {
 			$this->dbforge->drop_table(self::$T_AGENDA_TIME);
 		}
 
@@ -71,8 +70,7 @@ class Install_db extends CI_Model {
 	private function install_agenda_items_table() {
 		$this->dbforge->add_field(self::$C_ID);
 		$this->dbforge->add_field(self::$C_DESCRIPTION . ' text NOT NULL');
-		$this->dbforge->add_field(self::$C_ORDER . ' tinyint(4) NOT NULL');
-		$this->dbforge->add_field(self::$C_IS_TIME_EDITABLE . ' tinyint(1) NOT NULL DEFAULT 1');
+		$this->dbforge->add_field(self::$C_IS_TIME_EDITABLE . ' tinyint(1) NOT NULL DEFAULT 0');
 		$this->dbforge->add_field(self::$C_TIME . ' smallint(6) NOT NULL');
 		$this->dbforge->add_field(self::$C_IS_ALL_PARTICIPANTS . ' tinyint(1) NOT NULL DEFAULT 0');
 		$this->dbforge->add_key(self::$C_ID);
@@ -82,31 +80,30 @@ class Install_db extends CI_Model {
 	private function populate_agenda_items() {
 		$data = array(
 			array(
-				self::$C_ID => 1,
 				self::$C_DESCRIPTION => 'Welcome, gain clarity and inspiration',
-				self::$C_ORDER => 1,
 				self::$C_IS_TIME_EDITABLE => 0,
 				self::$C_TIME => 60,
 				self::$C_IS_ALL_PARTICIPANTS => 0
 			),
 			array(
-				self::$C_ID => 2,
 				self::$C_DESCRIPTION => 'Share what\'s new and good',
-				self::$C_ORDER => 2,
 				self::$C_IS_TIME_EDITABLE => 0,
 				self::$C_TIME => 60,
 				self::$C_IS_ALL_PARTICIPANTS => 1
 			),
 			array(
-				self::$C_ID => 3,
+				self::$C_DESCRIPTION => '1. What works really well in your business right now?<br />2. Share a resource.',
+				self::$C_IS_TIME_EDITABLE => 0,
+				self::$C_TIME => 60,
+				self::$C_IS_ALL_PARTICIPANTS => 1
+			),
+			array(
 				self::$C_DESCRIPTION => 'Negotiate for time',
-				self::$C_ORDER => 3,
 				self::$C_IS_TIME_EDITABLE => 0,
 				self::$C_TIME => 15,
 				self::$C_IS_ALL_PARTICIPANTS => 1
 			),
 			array(
-				self::$C_ID => 4,
 				self::$C_DESCRIPTION => '
 					<ul class="browser-default">
 						<li>Last week</li>
@@ -115,39 +112,44 @@ class Install_db extends CI_Model {
 							<li>Why not complete?</li>
 							<li>Challenges?</li>
 						</ul></li>
+						<li class="bold">What do you need help with?</li>
 						<li>Discussion, brainstorming, challenges</li>
 						<li class="orange900">Actions for next week</li>
 						<li class="red900">Focus action</li>
 					</ul>',
-				self::$C_ORDER => 4,
 				self::$C_IS_TIME_EDITABLE => 1,
 				self::$C_TIME => self::$DEFAULT_TIME,
 				self::$C_IS_ALL_PARTICIPANTS => 1
 			),
 			array(
-				self::$C_ID => 5,
-				self::$C_DESCRIPTION => '<span style="font-weight: bold;">Stretch goal</span><br/>One action you wouldn\'t take if not for the group. Not necessarily related to business.',
-				self::$C_ORDER => 5,
+				self::$C_DESCRIPTION => '<span class="bold">Stretch goal</span><br/>One action you wouldn\'t take if not for the group. Not necessarily related to business.',
 				self::$C_IS_TIME_EDITABLE => 0,
 				self::$C_TIME => 60,
 				self::$C_IS_ALL_PARTICIPANTS => 1
 			),
 			array(
-				self::$C_ID => 6,
 				self::$C_DESCRIPTION => 'Gratitude',
-				self::$C_ORDER => 6,
 				self::$C_IS_TIME_EDITABLE => 0,
 				self::$C_TIME => 30,
 				self::$C_IS_ALL_PARTICIPANTS => 1
 			),
+// 			array(
+// 				self::$C_DESCRIPTION => '<span class="bold">Feedback</span>
+// 					<ul class="browser-default">
+// 						<li>Worked well?</li>
+// 						<li>Not so well?</li>
+// 						<li>Replacement ideas</li>
+// 					</ul>',
+// 				self::$C_IS_TIME_EDITABLE => 0,
+// 				self::$C_TIME => 120,
+// 				self::$C_IS_ALL_PARTICIPANTS => 0
+// 			),
 			array(
-				self::$C_ID => 7,
 				self::$C_DESCRIPTION => 'Closing',
-				self::$C_ORDER => 7,
 				self::$C_IS_TIME_EDITABLE => 0,
 				self::$C_TIME => 60,
 				self::$C_IS_ALL_PARTICIPANTS => 0
-			)
+			),
 		);
 		$this->db->insert_batch(self::$T_AGENDA_ITEMS, $data);
 	}
@@ -162,28 +164,28 @@ class Install_db extends CI_Model {
 
 	private function populate_participant_time() {
 		$data = array(
+// 			array(
+// 				self::$C_ID => 1,
+// 				self::$C_NAME => 'Sri',
+// 				self::$C_TIME => self::$DEFAULT_TIME,
+// 			),
 			array(
 				self::$C_ID => 1,
-				self::$C_NAME => 'Sri',
-				self::$C_TIME => self::$DEFAULT_TIME,
-			),
-			array(
-				self::$C_ID => 2,
 				self::$C_NAME => 'Matteus',
 				self::$C_TIME => self::$DEFAULT_TIME,
 			),
 			array(
-				self::$C_ID => 3,
+				self::$C_ID => 2,
 				self::$C_NAME => 'Kevin',
 				self::$C_TIME => self::$DEFAULT_TIME,
 			),
 			array(
-				self::$C_ID => 4,
+				self::$C_ID => 3,
 				self::$C_NAME => 'Alli',
 				self::$C_TIME => self::$DEFAULT_TIME,
 			),
 			array(
-				self::$C_ID => 5,
+				self::$C_ID => 4,
 				self::$C_NAME => 'Jim',
 				self::$C_TIME => self::$DEFAULT_TIME,
 			)

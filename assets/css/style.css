@@ -125,8 +125,16 @@ label {
 	color: rgba(27,94,32,0.38);	
 }
 
+.passed_item .orange900 {
+	color: rgba(230,81,0,0.38);
+}
+
 .passed_item .red900 {
 	color: rgba(183,28,28,0.38);
+}
+
+.bold {
+	font-weight: bold;
 }
 
 @keyframes overdue {
