@@ -13,8 +13,13 @@ function install() {
 			}
 
 			if (json.success) {
-				$('#install_button').hide();
-				$('body').append('<p class="success">Successfully installed</p>');
+				$message = $('<p class="success">Successfully installed</p>');
+				$message
+					.delay(2000)
+					.fadeOut(2000, function() {
+						$(this).remove();
+					});
+				$('body').append($message);
 			}
 		}
 	});

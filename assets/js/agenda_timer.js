@@ -6,8 +6,9 @@ function fetch_all() {
 		success: function(json) {
 			if (json.success) {
 				$('#mastermind_table').children().remove();
-				populateTable(json.items, json.participant_times);
+				populateTable(json.items, json.participants);
 				update();
+				updateParticipantOrder();
 			}
 		}
 	});
@@ -44,8 +45,9 @@ function updateTimes(items, elapsed_time) {
 	let total_time = 0;
 	let total_time_default = 0;
 
+
 	// Update table times
-	$rows = $('#mastermind_table').children().each(function(i) {
+	$('#mastermind_table').children().each(function(i) {
 		let item = items[i];
 		item.time = parseInt(item.time);
 
@@ -65,7 +67,8 @@ function updateTimes(items, elapsed_time) {
 
 	// Update time box
 	let extra_time = total_time_default - total_time;
-	updateTimeBox(elapsed_time, extra_time);
+	let time_left = total_time_default - elapsed_time;
+	updateTimeBox(elapsed_time, time_left, extra_time);
 }
 
 function updateTimeLeft($row, item, elapsed_time) {
@@ -122,7 +125,7 @@ function updateTimeLeft($row, item, elapsed_time) {
 	}
 }
 
-function populateTable(agenda_items, participant_times) {
+function populateTable(agenda_items, participants) {
 	let total_time = 0;
 
 	elapsed_seconds = 30;
@@ -140,7 +143,7 @@ function populateTable(agenda_items, participant_times) {
 			'<div class="cell" id="participant"></div>' +
 			'<div class="cell" id="time_outer">';
 
-		// Editable
+		// Editable - Increase
 		if (agenda_item.is_time_editable == 1) {
 			row += '<p><a id="time_up" class="waves-effect waves-light btn"><i class="material-icons">expand_less</i></a></p>';
 		}
@@ -148,6 +151,7 @@ function populateTable(agenda_items, participant_times) {
 		row +=
 			'<div id="time"></div>';
 
+		// Editable - Decrease
 		if (agenda_item.is_time_editable == 1) {
 			row += '<p><a id="time_down" class="waves-effect waves-light btn"><i class="material-icons">expand_more</i></a></p>';
 		}
@@ -163,8 +167,8 @@ function populateTable(agenda_items, participant_times) {
 
 		// Has participant
 		if (agenda_item.participant_id !== undefined) {
-			let participant = participant_times[agenda_item.participant_id];
-			
+			let participant = participants[agenda_item.participant_id];
+
 			// Add buttons
 			if (agenda_item.is_time_editable == 1) {
 				// Add onClick
@@ -176,6 +180,11 @@ function populateTable(agenda_items, participant_times) {
 			}
 
 			$row.find('#participant').html(participant.name);
+			$row.data('participant_id', participant.id);
+
+			if (participant.active == 0) {
+				$row.hide();
+			}
 		}
 
 		$table.append($row);
@@ -201,8 +210,23 @@ function time_to_string(time, pad_minutes=false) {
 	return formatted_time;
 }
 
-function updateTimeBox(elapsed_time, extra_time) {
+function updateTimeBox(elapsed_time, time_left, extra_time) {
 	$('#elapsed_time').html(time_to_string(elapsed_time, true));
+
+	// Time left
+	$time_left = $('#total_time_left')
+	if ($time_left < 0) {
+		$time_left.addClass('red900');
+	} else {
+		$time_left.removeClass('red900');
+	}
+	if (time_left > -3600) {
+		$time_left.html(time_to_string(time_left));
+	} else {
+		$time_left.html('0:00');
+	}
+
+	// Extra time
 	$extra_time = $('#extra_time')
 
 	let prefix = '';
@@ -322,7 +346,7 @@ function update_participant_time(participant_id, diff_time) {
 	}
 
 	$.ajax({
-		url: 'agenda/update_participant_time',
+		url: 'participant/update_participant_time',
 		type: 'POST',
 		data: formData,
 		dataType: 'json',
@@ -337,6 +361,104 @@ function update_participant_time(participant_id, diff_time) {
 		}
 	});
 
+}
+
+function updateParticipantOrder() {
+	$.ajax({
+		url: 'participant/get_participant_order',
+		type: 'GET',
+		dataType: 'json',
+		success: function(json) {
+			if (json === null || json.success === undefined) {
+				addMessage('Return message is null, contact administrator', 'error');
+				return;
+			}
+
+			if (json.success) {
+				let participants = json.participants;
+				let $participant_order = $('#participant_order');
+				$participant_order.html('');
+
+				for (i = 0; i < participants.length; ++i) {
+					let participant = participants[i];
+					color = 'blue active'
+					if (participant.active == 0) {
+						color = 'red inactive';
+					}
+					let $participant_button = $('<a class="participant_button waves-effect waves-light btn ' + color + '">' + participant.name + '</a>');
+					$participant_button.data('participant_id', participant.id);
+					$participant_button.click(function() {
+						changeParticipantState($(this));
+					});
+					$participant_order.append($participant_button);
+				}
+			}
+		}
+	});
+
+	setTimeout('updateParticipantOrder()', 30000);
+}
+
+function setParticipantOrder() {
+	
+}
+
+function changeParticipantState($button) {
+	var formData = {
+		is_active: !$button.hasClass('active'),
+		participant_id: $button.data('participant_id')
+	}
+
+	$.ajax({
+		url: 'participant/set_participant_state',
+		type: 'POST',
+		data: formData,
+		dataType: 'json',
+		success: function(json) {
+			if (json === null || json.success === undefined) {
+				addMessage('Return message is null, contact administrator', 'error');
+				return;
+			}
+
+			if (json.success) {
+			}
+		}
+	});
+
+	if (!formData.is_active) {
+		$button.removeClass('active');
+		$button.removeClass('blue');
+		$button.addClass('inactive');
+		$button.addClass('red');
+	} else {
+		$button.removeClass('inactive');
+		$button.removeClass('red');
+		$button.addClass('active');
+		$button.addClass('blue');
+	}
+	hideShowParticipantRows();
+}
+
+function hideShowParticipantRows() {
+	let participants = [];
+	$('#participant_order').children().each(function() {
+		let participant_id = $(this).data('participant_id');
+		let is_active = $(this).hasClass('active');
+		participants[participant_id] = is_active;
+	});
+
+	$('#mastermind_table').children().each(function() {
+		$row = $(this);
+		
+		participant_id = $row.data('participant_id');
+		if (participant_id !== undefined && participant_id >= 1) {
+			if (participants[participant_id]) {
+				$row.show();
+			} else {
+				$row.hide();
+			}
+		}
+	});
 }
 
 $(document).ready(function() {

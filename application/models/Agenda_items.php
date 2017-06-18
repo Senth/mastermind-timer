@@ -8,11 +8,6 @@ class Agenda_items extends CI_Model {
 	private static $C_TIME = 'time';
 	private static $C_IS_ALL_PARTICIPANTS = '`is_all_participants`';
 
-	private static $T_PARTICIPANT_TIME = '`participant_time`';
-	private static $C_NAME = '`name`';
-	
-	private static $DEFAULT_TIME = 660;
-
 	public function __construct() {
 		parent::__construct();
 	}
@@ -38,31 +33,9 @@ class Agenda_items extends CI_Model {
 		}
 	}
 
-	public function set_participant_time($participant_id, $time_diff) {
-		$value = self::$C_TIME;
-		if ($time_diff > 0) {
-			$value .= '+';
-		}
-		$value .= $time_diff;
-		log_message('debug', 'Participant id: ' . $participant_id . ', Diff time: ' . $value);
-		$this->db->set(self::$C_TIME, self::$C_TIME . '+' . $time_diff, FALSE);
-		$this->db->where(self::$C_ID, $participant_id); 
-		$this->db->update(self::$T_PARTICIPANT_TIME);
-	}
-
-	public function get_participant_time() {
-		$this->db->from(self::$T_PARTICIPANT_TIME);
-		return $this->db->get()->result();
-	}
-
-	public function get_participant_count() {
-		$this->db->select('COUNT(*) AS count');
-		$this->db->from(self::$T_PARTICIPANT_TIME);
-		return $this->db->get()->row()->count;
-	}
-
-	public function reset() {
-		$this->db->set(self::$C_TIME, self::$DEFAULT_TIME);
-		$this->db->update(self::$T_PARTICIPANT_TIME);
+	public function exists($agenda_id) {
+		$this->db->from(self::$T_AGENDA_ITEMS);
+		$this->db->where(self::$C_ID, $agenda_id);
+		return $this->db->count_all_results() == 1;
 	}
 }

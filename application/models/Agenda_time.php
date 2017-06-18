@@ -2,8 +2,10 @@
 
 class Agenda_time extends CI_Model {
 	private static $TABLE = 'agenda_time';
+	private static $T_PARTICIPANT_TIME = 'participant_time';
 	private static $C_AGENDA_ITEM_ID = 'agenda_item_id';
 	private static $C_PARTICIPANT_ID = 'participant_id';
+	private static $C_PARTICIPANT_ORDER = '`order`';
 	private static $C_START_TIME = 'start_time';
 	private static $C_END_TIME = 'end_time';
 
@@ -14,6 +16,7 @@ class Agenda_time extends CI_Model {
 
 	public function get_active_item() {
 		$this->db->from(self::$TABLE);
+// 		$this->db->join(self::$T_PARTICIPANT_TIME, self::$TABLE . '.' . self::$C_PARTICIPANT_ID . ' = ' . self::$T_PARTICIPANT_TIME . '.' . self::$C_PARTICIPANT_ID);
 		$this->db->order_by(self::$C_AGENDA_ITEM_ID, 'DESC');
 		$this->db->order_by(self::$C_PARTICIPANT_ID, 'DESC');
 		$this->db->limit(1);
@@ -42,7 +45,7 @@ class Agenda_time extends CI_Model {
 		$this->db->set(self::$C_AGENDA_ITEM_ID, $agenda_item_id);
 
 		if ($participant_id !== NULL) {
-			log_message('Set participant id');
+			log_message('debug', 'Set participant id');
 			$this->db->set(self::$C_PARTICIPANT_ID, $participant_id);
 		}
 

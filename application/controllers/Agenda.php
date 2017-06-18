@@ -6,6 +6,7 @@ class Agenda extends CI_Controller {
 		$this->load->model('agenda_items');
 		$this->load->model('agenda_time');
 		$this->load->model('agendas');
+		$this->load->model('participants');
 	}
 
 	public function index() {
@@ -21,12 +22,12 @@ class Agenda extends CI_Controller {
 	public function get_agenda() {
 		// Get all agenda items
 		$items = $this->agenda_items->get_items();
-		$participant_times = $this->agenda_items->get_participant_time();
+		$participants = $this->participants->get_participants();
 
 		// Create agenda
 		foreach ($items as $item) {
 			if ($item->is_all_participants) {
-				foreach ($participant_times as $participant) {
+				foreach ($participants as $participant) {
 					$json_return['items'][] = $this->create_agenda_row($item, $participant);
 				}
 			} else {
@@ -34,9 +35,9 @@ class Agenda extends CI_Controller {
 			}
 		}
 
-		// Get participant times
-		foreach ($participant_times as $participant) {
-			$json_return['participant_times'][$participant->id] = $participant;
+		// Get participants
+		foreach ($participants as $participant) {
+			$json_return['participants'][$participant->id] = $participant;
 		}
 
 		$json_return['success'] = TRUE;
@@ -54,18 +55,10 @@ class Agenda extends CI_Controller {
 		return $json_item;
 	}
 
-	public function update_participant_time() {
-		$participant_id = $this->input->post('participant_id');
-		$diff_time = $this->input->post('diff_time');
-		$this->agenda_items->set_participant_time($participant_id, $diff_time);
-
-		$json_return['success'] = TRUE;
-		echo json_encode($json_return);
-	}
 
 	public function next_item() {
 		$active_item = $this->agenda_time->get_active_item();
-		$cParticipants = $this->agenda_items->get_participant_count();
+		$cParticipants = $this->participants->get_participant_count();
 
 		// Calculate next item
 		if ($active_item !== NULL) {
@@ -75,6 +68,8 @@ class Agenda extends CI_Controller {
 
 			// Next participant
 			if ($participant_id !== NULL) {
+				// TODO increase participant order
+				// TODO skip inactive participants
 				$participant_id++;
 
 				// Gone through all participants. Go to next agenda item
@@ -87,10 +82,16 @@ class Agenda extends CI_Controller {
 
 			if ($go_to_next_agenda_item) {
 				$agenda_item_id++;
-				if ($this->agenda_items->is_all_participants($agenda_item_id)) {
-					$participant_id = 1;
-				} else {
-					$participant_id = NULL;
+				if ($this->agenda_items->exists($agenda_item_id)) {
+					if ($this->agenda_items->is_all_participants($agenda_item_id)) {
+						$participant_id = 1;
+					} else {
+						$participant_id = NULL;
+					}
+				}
+				// End of agenda items, end agenda
+				else {
+					$this->agendas->set_end_time(time());
 				}
 			}
 		} else {
@@ -109,8 +110,13 @@ class Agenda extends CI_Controller {
 
 	private function get_elapsed_time() {
 		$start_time = $this->agendas->get_start_time();
+		$end_time = $this->agendas->get_end_time();
 		if ($start_time > 0) {
-			$diff_time = time() - $start_time;
+			if ($end_time !== NULL) {
+				$diff_time = $end_time - $start_time;
+			} else {
+				$diff_time = time() - $start_time;
+			}
 			return $diff_time;
 		} else {
 			return 0;
@@ -123,7 +129,7 @@ class Agenda extends CI_Controller {
 		log_message('debug', 'Elapsed seconds: ' + $json_return['elapsed_time']);
 
 		$items = $this->agenda_items->get_items();
-		$participants = $this->agenda_items->get_participant_time();
+		$participants = $this->participants->get_participants();
 		$item_times = $this->get_sorted_item_times();
 
 		foreach ($items as $item) {
@@ -188,7 +194,7 @@ class Agenda extends CI_Controller {
 	}
 
 	public function reset() {
-		$this->agenda_items->reset();
+		$this->participants->reset();
 		$this->agenda_time->reset();
 	}
 

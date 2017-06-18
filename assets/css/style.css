@@ -91,6 +91,10 @@ label {
 	margin-top: 0;
 }
 
+.participant_button {
+	margin-right: 5px;
+}
+
 /* Material Colors */
 #row_background.orange100 {
 	background-color: #ffe0b2;
