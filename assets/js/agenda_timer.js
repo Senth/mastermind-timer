@@ -1,4 +1,9 @@
 function fetch_all() {
+	getAgenda();
+	updateParticipantOrder();
+}
+
+function getAgenda() {
 	$.ajax({
 		url: 'agenda/get_agenda',
 		type: 'GET',
@@ -10,9 +15,7 @@ function fetch_all() {
 				update();
 			}
 		}
-	});
-	
-	updateParticipantOrder();
+	});	
 }
 
 function update() {
@@ -445,7 +448,14 @@ function updateParticipants(participants, $participant_order) {
 			let $participant = new_participant_order[i];
 			$participant_order.append($participant);
 		}
+
+		changeAgendaOrder();
 	}
+}
+
+function changeAgendaOrder() {
+	$('#mastermind_table').html('');
+	getAgenda();
 }
 
 function populateParticipants(participants, $participant_order) {
@@ -487,6 +497,7 @@ function setParticipantOrder() {
 				return;
 			}
 			$participant_order.data('sorting', false);
+			changeAgendaOrder();
 		}
 	});
 

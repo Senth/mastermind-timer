@@ -189,8 +189,8 @@ class Agenda extends CI_Controller {
 				$json_item->time = $item->time;
 			}
 
-			if (isset($item_times[$item->id]) && isset($item_times[$item->id][$participant->id])) {
-				$item_time = $item_times[$item->id][$participant->id];
+			if (isset($item_times[$item->id]) && isset($item_times[$item->id][$participant->order])) {
+				$item_time = $item_times[$item->id][$participant->order];
 				$json_item->start_time = $item_time->start_time;
 				$json_item->end_time = $item_time->end_time;
 			}
