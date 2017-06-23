@@ -35,6 +35,14 @@ class Participants extends CI_Model {
 		$this->db->update(self::$TABLE);
 	}
 
+	public function set_participant_order($participants) {
+		foreach ($participants as $order => $participant_id) {
+			$this->db->set(self::$C_ORDER, $order + 1);
+			$this->db->where(self::$C_ID, $participant_id);
+			$this->db->update(self::$TABLE);
+		}
+	}
+
 	public function get_participants() {
 		$this->db->from(self::$TABLE);
 		$this->db->order_by(self::$C_ORDER, 'ASC');

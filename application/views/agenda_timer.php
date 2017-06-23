@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <h1>Mastermind Agenda Timer</h1>
 <p id="participant_order"></p>
-<p><a class="waves-effect waves-light btn" onClick="start_agenda()">Start</a>
+<p><a class="waves-effect waves-light btn" onClick="startAgenda()">Start</a>
 <a class="waves-effect waves-light btn" target="_blank" rel="noopener noreferrer" href="https://hangouts.google.com/hangouts/_/6s35zznzwvfj5hn4kdx3ulciwue">Google Hangout</a>
 </p>
 <div id="messages"></div>

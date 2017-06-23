@@ -58,22 +58,20 @@ class Agenda extends CI_Controller {
 
 	public function next_item() {
 		$active_item = $this->agenda_time->get_active_item();
-		$cParticipants = $this->participants->get_participant_count();
 
 		// Calculate next item
 		if ($active_item !== NULL) {
 			$agenda_item_id = $active_item->agenda_item_id;
-			$participant_id = $active_item->participant_id;
+			$participant_order = $active_item->participant_order;
 			$go_to_next_agenda_item = false;
 
 			// Next participant
-			if ($participant_id !== NULL) {
-				// TODO increase participant order
-				// TODO skip inactive participants
-				$participant_id++;
+			if ($participant_order !== NULL) {
+				// Increase participant order, but skip inactive participants
+				$participant_order = $this->calculate_next_participant_order($participant_order);
 
 				// Gone through all participants. Go to next agenda item
-				if ($participant_id > $cParticipants) {
+				if ($participant_order == -1) {
 					$go_to_next_agenda_item = true;
 				}
 			} else {
@@ -84,9 +82,9 @@ class Agenda extends CI_Controller {
 				$agenda_item_id++;
 				if ($this->agenda_items->exists($agenda_item_id)) {
 					if ($this->agenda_items->is_all_participants($agenda_item_id)) {
-						$participant_id = 1;
+						$participant_order = $this->calculate_next_participant_order(0);
 					} else {
-						$participant_id = NULL;
+						$participant_order = NULL;
 					}
 				}
 				// End of agenda items, end agenda
@@ -97,15 +95,30 @@ class Agenda extends CI_Controller {
 		} else {
 			$agenda_item_id = 1;
 			if ($this->agenda_items->is_all_participants($agenda_item_id)) {
-				$participant_id = 1;
+				$participant_order = 1;
 			} else {
-				$participant_id = NULL;
+				$participant_order = NULL;
 			}
 		}
 
 		// Set next item
-		log_message('debug', 'participant_id: ' . $participant_id);
-		$this->agenda_time->next_item($agenda_item_id, $participant_id, $this->get_elapsed_time());
+		log_message('debug', 'participant_order: ' . $participant_order);
+		$this->agenda_time->next_item($agenda_item_id, $participant_order, $this->get_elapsed_time());
+	}
+
+	private function calculate_next_participant_order($order) {
+		$cParticipants = $this->participants->get_participant_count();
+		$participants = $this->participants->get_participants();
+		
+		do {
+			$order++;
+		} while ($order <= $cParticipants && !$participants[$order-1]->active);
+
+		if ($order > $cParticipants) {
+			$order = -1;
+		}
+
+		return $order;
 	}
 
 	private function get_elapsed_time() {
@@ -152,8 +165,8 @@ class Agenda extends CI_Controller {
 		if (is_array($times)) {
 			$sorted_times = array();
 			foreach ($times as $time) {
-				if ($time->participant_id !== NULL) {
-					$sorted_times[$time->agenda_item_id][$time->participant_id] = $time;
+				if ($time->participant_order !== NULL) {
+					$sorted_times[$time->agenda_item_id][$time->participant_order] = $time;
 				} else {
 					$sorted_times[$time->agenda_item_id] = $time;
 				}

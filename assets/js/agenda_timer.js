@@ -8,10 +8,11 @@ function fetch_all() {
 				$('#mastermind_table').children().remove();
 				populateTable(json.items, json.participants);
 				update();
-				updateParticipantOrder();
 			}
 		}
 	});
+	
+	updateParticipantOrder();
 }
 
 function update() {
@@ -48,21 +49,27 @@ function updateTimes(items, elapsed_time) {
 
 	// Update table times
 	$('#mastermind_table').children().each(function(i) {
+		// Only update active participants
 		let item = items[i];
 		item.time = parseInt(item.time);
+		$row = $(this);
 
-		$(this).find('#start_time').html(time_to_string(total_time, true));
-		$(this).find('#time').html(time_to_string(item.time));
+		// Update row
+		if ($row.is(':visible')) {
+			$row.find('#start_time').html(time_to_string(total_time, true));
+			$row.find('#time').html(time_to_string(item.time));
 
-		// Update time left
-		time_used = updateTimeLeft($(this), item, elapsed_time);
+			// Update time left
+			time_used = updateTimeLeft($row, item, elapsed_time);
+			total_time += time_used;
+		}
 
+		// Calculate total time available
 		if (item.time_default != undefined) {
 			total_time_default += parseInt(item.time_default);
 		} else {
 			total_time_default += item.time;
 		}
-		total_time += time_used;
 	});
 
 	// Update time box
@@ -173,9 +180,9 @@ function populateTable(agenda_items, participants) {
 			if (agenda_item.is_time_editable == 1) {
 				// Add onClick
 				$row.find('#time_up').click(function() {
-					increase_participant_time(participant.id)});
+					increaseParticipantTime(participant.id)});
 				$row.find('#time_down').click(function() {
-					decrease_participant_time(participant.id)
+					decreaseParticipantTime(participant.id)
 				});
 			}
 
@@ -306,7 +313,7 @@ function str_pad_left(string,pad,length) {
     return (new Array(length+1).join(pad)+string).slice(-length);
 }
 
-function start_agenda() {
+function startAgenda() {
 	$.ajax({
 		url: 'agenda/start',
 		type: 'POST',
@@ -331,15 +338,19 @@ function start_agenda() {
 	});
 }
 
-function increase_participant_time(participant_id) {
-	update_participant_time(participant_id, 60);
+var active_participant_class = 'blue active';
+var inactive_participant_class = 'red inactive';
+var test_active_class = 'active';
+
+function increaseParticipantTime(participant_id) {
+	updateParticipantTime(participant_id, 60);
 }
 
-function decrease_participant_time(participant_id) {
-	update_participant_time(participant_id, -60);
+function decreaseParticipantTime(participant_id) {
+	updateParticipantTime(participant_id, -60);
 }
 
-function update_participant_time(participant_id, diff_time) {
+function updateParticipantTime(participant_id, diff_time) {
 	let formData = {
 		participant_id: participant_id,
 		diff_time: diff_time
@@ -377,36 +388,114 @@ function updateParticipantOrder() {
 			if (json.success) {
 				let participants = json.participants;
 				let $participant_order = $('#participant_order');
-				$participant_order.html('');
 
-				for (i = 0; i < participants.length; ++i) {
-					let participant = participants[i];
-					color = 'blue active'
-					if (participant.active == 0) {
-						color = 'red inactive';
+				if (!$participant_order.data('sorting')) {
+					// First time
+					if ($participant_order.html() === '') {
+						populateParticipants(participants, $participant_order);
 					}
-					let $participant_button = $('<a class="participant_button waves-effect waves-light btn ' + color + '">' + participant.name + '</a>');
-					$participant_button.data('participant_id', participant.id);
-					$participant_button.click(function() {
-						changeParticipantState($(this));
-					});
-					$participant_order.append($participant_button);
+					// Reorder
+					else {
+						updateParticipants(participants, $participant_order);
+					}
+					hideShowParticipantRows();
 				}
 			}
 		}
 	});
 
-	setTimeout('updateParticipantOrder()', 30000);
+	setTimeout('updateParticipantOrder()', 1000);
+}
+
+function updateParticipants(participants, $participant_order) {
+	// Sort participants after id
+	let participants_by_id = {};
+	for (let i = 0; i < participants.length; ++i) {
+		let participant = participants[i];
+		participants_by_id[participant.id] = participant;
+	}
+
+	let order_update_needed = false;
+	let new_participant_order = {};
+	$participant_order.children().each(function(i) {
+		let $participant = $(this);
+		let participant_id = $participant.data('participant_id');
+		let participant = participants_by_id[participant_id];
+		let order = participant.order;
+		let active = participant.active == 1;
+		new_participant_order[order] = $participant;
+		if (order != i+1) {
+			order_update_needed = true;
+		}
+
+		// Update from inactive to active
+		if (active && !$participant.hasClass(test_active_class)) {
+			setAsActive($participant);
+		}
+		// Update from active to inactive
+		else if (!active && $participant.hasClass(test_active_class)) {
+			setAsInactive($participant);
+		}
+	});
+
+	// Change elements to the correct order
+	if (order_update_needed) {
+		$participant_order.children().detach();
+		for (let i in new_participant_order) {
+			let $participant = new_participant_order[i];
+			$participant_order.append($participant);
+		}
+	}
+}
+
+function populateParticipants(participants, $participant_order) {
+	for (let i = 0; i < participants.length; ++i) {
+		let participant = participants[i];
+		let color = active_participant_class;
+		if (participant.active == 0) {
+			color = inactive_participant_class;
+		}
+		let $participant_button = $('<a class="participant_button waves-effect waves-light btn ' + color + '">' + participant.name + '</a>');
+		$participant_button.data('participant_id', participant.id);
+		$participant_button.click(function() {
+			changeParticipantState($(this));
+		});
+		$participant_order.append($participant_button);
+	}
 }
 
 function setParticipantOrder() {
-	
+	let participant_order = [];
+	let $participant_order = $('#participant_order');
+	$participant_order.children().each(function() {
+		let participant_id = $(this).data('participant_id');
+		participant_order.push(participant_id);
+	});
+
+	let formData = {
+		'new_order': participant_order
+	}
+
+	$.ajax({
+		url: 'participant/set_participant_order',
+		type: 'POST',
+		data: formData,
+		dataType: 'json',
+		success: function(json) {
+			if (json === null || json.success === undefined) {
+				addMessage('Return message is null, contact administrator', 'error');
+				return;
+			}
+			$participant_order.data('sorting', false);
+		}
+	});
+
 }
 
 function changeParticipantState($button) {
 	var formData = {
-		is_active: !$button.hasClass('active'),
-		participant_id: $button.data('participant_id')
+		'is_active': !$button.hasClass(test_active_class),
+		'participant_id': $button.data('participant_id')
 	}
 
 	$.ajax({
@@ -425,18 +514,25 @@ function changeParticipantState($button) {
 		}
 	});
 
-	if (!formData.is_active) {
-		$button.removeClass('active');
-		$button.removeClass('blue');
-		$button.addClass('inactive');
-		$button.addClass('red');
+	// Update button colors
+	if (formData.is_active) {
+		setAsActive($button);
 	} else {
-		$button.removeClass('inactive');
-		$button.removeClass('red');
-		$button.addClass('active');
-		$button.addClass('blue');
+		setAsInactive($button);
 	}
 	hideShowParticipantRows();
+}
+
+function setAsActive($participant_button) {
+	$participant_button
+		.removeClass(inactive_participant_class)
+		.addClass(active_participant_class);
+}
+
+function setAsInactive($participant_button) {
+	$participant_button
+		.removeClass(active_participant_class)
+		.addClass(inactive_participant_class);
 }
 
 function hideShowParticipantRows() {
@@ -461,6 +557,22 @@ function hideShowParticipantRows() {
 	});
 }
 
+function makeSortableButtons() {
+	var $participant_order = $('#participant_order');
+	$participant_order.sortable({
+		'cancel': '',
+		'start': function(event, ui) {
+			$participant_order.data('sorting', true);
+		},
+		'stop': function(event, ui) {
+			setParticipantOrder();
+			$participant_order.data('sorting', false);
+		}
+	});
+	$participant_order.data('sorting', false);
+}
+
 $(document).ready(function() {
 	fetch_all();
+	makeSortableButtons();
 });

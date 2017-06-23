@@ -31,4 +31,13 @@ class Participant extends CI_Controller {
 		$json_return['success'] = TRUE;
 		echo json_encode($json_return);	
 	}
+
+	public function set_participant_order() {
+		$new_order = $this->input->post('new_order');
+		
+		$this->participants->set_participant_order($new_order);
+
+		$json_return['success'] = TRUE;
+		echo json_encode($json_return);
+	}
 }

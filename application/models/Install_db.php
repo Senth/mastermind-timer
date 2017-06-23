@@ -17,7 +17,7 @@ class Install_db extends CI_Model {
 	private static $C_NAME = '`name`';
 
 	private static $C_ORDER = '`order`';
-	private static $C_PARTICIPANT_ID = '`participant_id`';
+	private static $C_PARTICIPANT_ORDER = '`participant_order`';
 	private static $C_ACTIVE = 'active';
 	private static $C_AGENDA_ITEM_ID = '`agenda_item_id`';
 	private static $C_END_TIME = '`end_time`';
@@ -163,11 +163,10 @@ class Install_db extends CI_Model {
 
 	private function install_agenda_time_table() {
 		$this->dbforge->add_field(self::$C_AGENDA_ITEM_ID . ' INTEGER(9) NOT NULL');
-		$this->dbforge->add_field(self::$C_PARTICIPANT_ID . ' INTEGER(9) NULL');
+		$this->dbforge->add_field(self::$C_PARTICIPANT_ORDER . ' INTEGER(9) NULL');
 		$this->dbforge->add_field(self::$C_START_TIME . ' SMALLINT(6) NOT NULL');
 		$this->dbforge->add_field(self::$C_END_TIME . ' SMALLINT(6) NULL');
 		$this->dbforge->add_key(self::$C_AGENDA_ITEM_ID);
-		$this->dbforge->add_key(self::$C_PARTICIPANT_ID);
 		$this->dbforge->create_table(self::$T_AGENDA_TIME);
 	}
 }
