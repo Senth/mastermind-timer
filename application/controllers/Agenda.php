@@ -58,6 +58,8 @@ class Agenda extends CI_Controller {
 
 	public function next_item() {
 		$active_item = $this->agenda_time->get_active_item();
+		$skipped_participants_active = 0;
+		$skipped_participants_next = 0;
 
 		// Calculate next item
 		if ($active_item !== NULL) {
@@ -68,7 +70,9 @@ class Agenda extends CI_Controller {
 			// Next participant
 			if ($participant_order !== NULL) {
 				// Increase participant order, but skip inactive participants
-				$participant_order = $this->calculate_next_participant_order($participant_order);
+				$participant_order_arr = $this->calculate_next_participant_order($participant_order);
+				$participant_order = $participant_order_arr['order'];
+				$skipped_participants_active = $participant_order_arr['skipped_participants'];
 
 				// Gone through all participants. Go to next agenda item
 				if ($participant_order == -1) {
@@ -82,7 +86,10 @@ class Agenda extends CI_Controller {
 				$agenda_item_id++;
 				if ($this->agenda_items->exists($agenda_item_id)) {
 					if ($this->agenda_items->is_all_participants($agenda_item_id)) {
-						$participant_order = $this->calculate_next_participant_order(0);
+						log_message('debug', 'Next agenda item');
+						$participant_order_arr = $this->calculate_next_participant_order(0);
+						$participant_order = $participant_order_arr['order'];
+						$skipped_participants_next = $participant_order_arr['skipped_participants'];
 					} else {
 						$participant_order = NULL;
 					}
@@ -103,22 +110,25 @@ class Agenda extends CI_Controller {
 
 		// Set next item
 		log_message('debug', 'participant_order: ' . $participant_order);
-		$this->agenda_time->next_item($agenda_item_id, $participant_order, $this->get_elapsed_time());
+		$this->agenda_time->next_item($agenda_item_id, $participant_order, $this->get_elapsed_time(), $skipped_participants_active, $skipped_participants_next);
 	}
 
 	private function calculate_next_participant_order($order) {
 		$cParticipants = $this->participants->get_participant_count();
 		$participants = $this->participants->get_participants();
-		
+		$skipped_participants = -1;
+
 		do {
 			$order++;
+			$skipped_participants++;
 		} while ($order <= $cParticipants && !$participants[$order-1]->active);
 
 		if ($order > $cParticipants) {
 			$order = -1;
 		}
 
-		return $order;
+		log_message('debug', 'Skipped Participants: ' . $skipped_participants);
+		return array('order' => $order, 'skipped_participants' => $skipped_participants);
 	}
 
 	private function get_elapsed_time() {
