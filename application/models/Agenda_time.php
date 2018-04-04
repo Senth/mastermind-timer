@@ -40,14 +40,14 @@ class Agenda_time extends CI_Model {
 		}
 
 		// Set start and end time for inactive participants we skipped (for current item)
-		if (isset($skipped_participants_active) && $skipped_participants_active > 0) {
+		if ($skipped_participants_active > 0) {
 			$skipped_from = $active_item->participant_order + 1;
 			$skipped_to = $active_item->participant_order + $skipped_participants_active;
 			$this->set_time_for_skipped_participants($active_item->agenda_item_id, $time, $skipped_from, $skipped_to);
 		}
 
 		// Set start and end times for inactive participants (for next agenda item)
-		if (isset($skipped_participants_next) && $skipped_participants_next > 0) {
+		if ($skipped_participants_next > 0) {
 			$skipped_from = 1;
 			$skipped_to = $skipped_participants_next;
 			$this->set_time_for_skipped_participants($agenda_item_id, $time, $skipped_from, $skipped_to);
