@@ -90,10 +90,10 @@ class Install_db extends CI_Model {
 			),
 			array(
 				self::$C_DESCRIPTION => '
-						<span class="green900">Self Acknowledgement; what are you proud of?</span><br/>
-						<span class="orange900">Share a resource</span>',
+						Self Acknowledgement; what are you proud of?<br/>
+						Share a resource <em>(optional)</em>',
 				self::$C_IS_TIME_EDITABLE => 0,
-				self::$C_TIME => 90,
+				self::$C_TIME => 60,
 				self::$C_IS_ALL_PARTICIPANTS => 1
 			),
 			array(
@@ -162,7 +162,7 @@ class Install_db extends CI_Model {
 			),
 			array(
 				self::$C_ORDER => 4,
-				self::$C_NAME => "Raul",
+				self::$C_NAME => "Raúl",
 				self::$C_TIME => self::$DEFAULT_TIME,
 			)
 		);
