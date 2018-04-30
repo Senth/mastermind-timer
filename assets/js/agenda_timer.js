@@ -290,10 +290,31 @@ function setColorTimeLeft($row, time, time_left) {
 	let backgroundWidth = 100 - percentTimeLeft + "%";
 	$rowBackground = $row.find('#row_background');
 	$rowBackground.removeClass();
+
+	// Play half-time sound (for pieces longer than 6 min)
+	if (time >= 360 && percentTimeLeft < 50 && percentTimeLeft > 40 && $row.data('half-time') == undefined) {
+		$row.data('half-time', true);
+		new Audio('assets/sound/half-time.ogg').play();
+	}
 	
 	// Overdue
-	if (time_left < 0) {
+	if (time_left < -120) {
 		$rowBackground.addClass('overdue');
+
+		// Always play long overdue
+		if ($row.data('overdue') == undefined) {
+			$row.data('overdue', true);
+			new Audio('assets/sound/overdue.ogg').play();
+		}
+	}
+	else if (time_left < 0) {
+		$rowBackground.addClass('overdue');
+		
+		// Only play times up for 3+ min
+		if (time >= 180 && $row.data('times-up') == undefined) {
+			$row.data('times-up', true);
+			new Audio('assets/sound/times-up.ogg').play();
+		}
 	}
 	// Red
 	else if (time_left < redTimeThreshold) {
@@ -302,6 +323,12 @@ function setColorTimeLeft($row, time, time_left) {
 	// Orange
 	else if (time_left < orangeTimeThreshold) {
 		$rowBackground.addClass('orange100');
+
+		// Play almost up for 3+ min
+		if (time >= 180 && $row.data('almost-up') == undefined) {
+			$row.data('almost-up', true);
+			new Audio('assets/sound/almost-up.ogg').play();
+		}
 	// Green
 	} else {
 		$rowBackground.addClass('green100');

@@ -21,3 +21,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <a id="skip" class="waves-effect waves-light btn" onClick="nextItem()"><i class="material-icons">fast_forward</i></a>
 </div>
 </div>
+<p class="attribution">
+Sound attribution:
+<a target="_blank" href="https://freesound.org/people/Fratz/sounds/239967/">half-time</a>,
+<a target="_blank" href="https://freesound.org/people/Fratz/sounds/239966/">almost up</a>,
+<a target="_blank" href="https://freesound.org/people/psynaptix/sounds/160165/">times up</a>,
+<a target="_blank" href="https://freesound.org/people/psynaptix/sounds/160165/">overdue</a>.
+<p>
